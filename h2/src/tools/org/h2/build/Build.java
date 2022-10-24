@@ -67,6 +67,10 @@ public class Build extends BuildBase {
 
     private static final String SQLITE_VERSION = "3.36.0.3";
 
+    private static final String JAYBIRD_VERSION = "4.0.22";
+
+    private static final String CONNECTOR_VERSION = "1.5";
+
     private boolean filesMissing;
 
     /**
@@ -105,6 +109,10 @@ public class Build extends BuildBase {
                 "f1da9f10a3de6348725a413304aab6d0aa04f923");
         downloadUsingMaven("ext/sqlite-" + SQLITE_VERSION + ".jar",
             "org.xerial", "sqlite-jdbc", SQLITE_VERSION, "7fa71c4dfab806490cb909714fb41373ec552c29");
+        downloadUsingMaven("https://nexus.red-soft.ru/repository/jaybird/", "ext/jaybird-jdk18-" + JAYBIRD_VERSION + ".jar",
+                "ru.red-soft.jdbc", "jaybird-jdk18", JAYBIRD_VERSION, null);
+        downloadUsingMaven("ext/connector-api-" + CONNECTOR_VERSION + ".jar",
+                "javax.resource", "connector-api", CONNECTOR_VERSION, null);
         compile();
 
         String cp = "temp" +
@@ -116,7 +124,9 @@ public class Build extends BuildBase {
 //                File.pathSeparator + "ext/derbyshared-" + DERBY_VERSION + ".jar" +
                 File.pathSeparator + "ext/postgresql-" + PGJDBC_VERSION + ".jar" +
                 File.pathSeparator + "ext/mysql-connector-java-" + MYSQL_CONNECTOR_VERSION + ".jar" +
-                File.pathSeparator + "ext/sqlite-" + SQLITE_VERSION + ".jar";
+                File.pathSeparator + "ext/sqlite-" + SQLITE_VERSION + ".jar" +
+                File.pathSeparator + "ext/jaybird-jdk18-" + JAYBIRD_VERSION + ".jar" +
+                File.pathSeparator + "ext/connector-api-" + CONNECTOR_VERSION + ".jar";
         StringList args = args("-Xmx128m",
                 "-cp", cp, "-Dderby.system.durability=test", "org.h2.test.bench.TestPerformance");
         execJava(args.plus("-init", "-db", "1"));

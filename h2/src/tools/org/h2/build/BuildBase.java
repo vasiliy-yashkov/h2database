@@ -621,6 +621,50 @@ public class BuildBase {
         download(target, fileURL, sha1Checksum);
     }
 
+    protected void downloadUsingMaven(String repository, String target, String group,
+                                      String artifact, String version, String sha1Checksum) {
+        String repoDir = repository;
+        Path targetFile = Paths.get(target);
+        if (Files.exists(targetFile)) {
+            return;
+        }
+        String repoFile = group.replace('.', '/') + "/" + artifact + "/" + version + "/"
+                + artifact + "-" + version + ".jar";
+        mkdirs(targetFile.toAbsolutePath().getParent());
+        Path localMavenDir = Paths.get(getLocalMavenDir());
+        if (Files.isDirectory(localMavenDir)) {
+            Path f = localMavenDir.resolve(repoFile);
+            if (!Files.exists(f)) {
+                try {
+                    execScript("mvn", args(
+                            "org.apache.maven.plugins:maven-dependency-plugin:2.1:get",
+                            "-D" + "repoUrl=" + repoDir,
+                            "-D" + "artifact="+ group +":"+ artifact +":" + version));
+                } catch (RuntimeException e) {
+                    println("Could not download using Maven: " + e.toString());
+                }
+            }
+            if (Files.exists(f)) {
+                byte[] data = readFile(f);
+                String got = getSHA1(data);
+                if (sha1Checksum == null) {
+                    println("SHA1 checksum: " + got);
+                } else {
+                    if (!got.equals(sha1Checksum)) {
+                        throw new RuntimeException(
+                                "SHA1 checksum mismatch; got: " + got +
+                                        " expected: " + sha1Checksum +
+                                        " for file " + f.toAbsolutePath());
+                    }
+                }
+                writeFile(targetFile, data);
+                return;
+            }
+        }
+        String fileURL = repoDir + "/" + repoFile;
+        download(target, fileURL, sha1Checksum);
+    }
+
     protected String getLocalMavenDir() {
         return System.getProperty("user.home") + "/.m2/repository";
     }

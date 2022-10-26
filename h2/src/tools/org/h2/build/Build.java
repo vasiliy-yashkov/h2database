@@ -67,6 +67,8 @@ public class Build extends BuildBase {
 
     private static final String SQLITE_VERSION = "3.36.0.3";
 
+    private static final String OJDBC8_VERSION = "21.7.0.0";
+
     private static final String JAYBIRD_VERSION = "4.0.22";
 
     private static final String CONNECTOR_VERSION = "1.5";
@@ -113,6 +115,8 @@ public class Build extends BuildBase {
                 "ru.red-soft.jdbc", "jaybird-jdk18", JAYBIRD_VERSION, null);
         downloadUsingMaven("ext/connector-api-" + CONNECTOR_VERSION + ".jar",
                 "javax.resource", "connector-api", CONNECTOR_VERSION, null);
+        downloadUsingMaven("ext/ojdbc8-" + OJDBC8_VERSION + ".jar",
+                "com.oracle.database.jdbc", "ojdbc8", OJDBC8_VERSION, null);
         compile();
 
         String cp = "temp" +
@@ -126,13 +130,14 @@ public class Build extends BuildBase {
                 File.pathSeparator + "ext/mysql-connector-java-" + MYSQL_CONNECTOR_VERSION + ".jar" +
                 File.pathSeparator + "ext/sqlite-" + SQLITE_VERSION + ".jar" +
                 File.pathSeparator + "ext/jaybird-jdk18-" + JAYBIRD_VERSION + ".jar" +
-                File.pathSeparator + "ext/connector-api-" + CONNECTOR_VERSION + ".jar";
+                File.pathSeparator + "ext/connector-api-" + CONNECTOR_VERSION + ".jar" +
+                File.pathSeparator + "ext/ojdbc8-" + OJDBC8_VERSION + ".jar";
         StringList args = args("-Xmx128m",
                 "-cp", cp, "-Dderby.system.durability=test", "org.h2.test.bench.TestPerformance");
-        execJava(args.plus("-init", "-db", "1"));
-        execJava(args.plus("-db", "2"));
-        execJava(args.plus("-db", "3", "-out", "pe.html"));
-        execJava(args.plus("-init", "-db", "4"));
+        execJava(args.plus("-init", "-db", "1", "-out", "benchmark_db1.html"));
+        execJava(args.plus("-init", "-db", "2", "-out", "benchmark_db2.html"));
+        execJava(args.plus("-init", "-db", "3", "-out", "benchmark_db3.html"));
+        execJava(args.plus("-init", "-db", "4", "-out", "benchmark_db4.html"));
         execJava(args.plus("-db", "5", "-exit"));
         execJava(args.plus("-db", "6"));
         execJava(args.plus("-db", "7"));

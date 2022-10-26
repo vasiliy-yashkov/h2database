@@ -164,7 +164,7 @@ public class BenchC implements Bench {
             " PROCESSING_TIME INT,\n" +
             " KEYING_TIME INT,\n" +
             " THINK_TIME INT,\n" +
-            " SUCCESSFUL INT,\n" +
+            " SUCCESSFUL_ INT,\n" +
             " NOW TIMESTAMP)" };
 
     int warehouses = 2;
